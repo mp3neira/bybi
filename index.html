@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bybi — bags com identidade e personalidade</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+</head>
+<body>
+
+<div class="announce"><i class="ti ti-truck"></i>Frete grátis para Brusque, SC · Peças feitas à mão sob encomenda</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <img src="assets/logo-marktransparente.png" alt="Bybi" />
+    </div>
+    <nav>
+      <a href="#catalogo">Catálogo</a>
+      <a href="#personalizada">Sua Bybi</a>
+      <a href="#historia">Nossa história</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Buscar"><i class="ti ti-search"></i></button>
+      <button class="icon-btn cart-btn-labeled" id="cart-btn" aria-label="Carrinho">
+        <i class="ti ti-shopping-bag"></i>
+        <span class="cart-count" id="cart-count">0</span>
+      </button>
+      <span class="cart-label" onclick="document.getElementById('cart-btn').click()">Carrinho</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero" style="padding-bottom:0;">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow">Feito à mão, peça por peça</span>
+      <h1>Bags com muita<br/>identidade e personalidade</h1>
+      <p>Cada Bybi é feita à mão em crochê, com carinho e atenção a cada detalhe. Escolha uma peça pronta ou crie a sua, do seu jeito.</p>
+      <div class="hero-ctas">
+        <a href="#catalogo" class="btn btn-primary"><i class="ti ti-shopping-bag"></i> Ver catálogo</a>
+        <a href="#personalizada" class="btn btn-outline">Quero uma personalizada</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="assets/bolsas transparente.png" alt="Bolsa Star Bybi nas três cores" style="object-fit:contain; background:var(--); height:auto; max-height:460px;" />
+    </div>
+  </div>
+</section>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>✻ feito à mão</span><span>✻ peças exclusivas</span><span>✻ crochê artesanal</span><span>✻ sua bybi, do seu jeito</span>
+    <span>✻ feito à mão</span><span>✻ peças exclusivas</span><span>✻ crochê artesanal</span><span>✻ sua bybi, do seu jeito</span>
+  </div>
+</div>
+
+<section id="catalogo">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Catálogo</span>
+      <h2>Escolha a sua Bybi</h2>
+      <p>Peças prontas para envio imediato, feitas à mão em crochê.</p>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="product-grid"></div>
+  </div>
+</section>
+
+<section id="personalizada" style="padding-top:0;">
+  <div class="container">
+    <div class="custom-banner reveal">
+      <div>
+        <span class="eyebrow">Sua bybi, do seu jeito</span>
+        <h2>Tem uma ideia em mente?</h2>
+        <p>Bybi não é só sobre bags, é sobre identidade e exclusividade. Me envie referências, cores e inspirações e eu desenvolvo uma peça com a sua personalidade.</p>
+        <a href="https://w.app/vg1pfy" target="_blank" class="btn" style="background:var(--sage); color:var(--wine);"><i class="ti ti-brand-whatsapp"></i> Chamar no WhatsApp</a>
+      </div>
+      <div class="custom-steps">
+        <div class="custom-step">
+          <span class="num">1</span>
+          <p>Envie referências, cores e detalhes que você imagina para a sua bolsa.</p>
+        </div>
+        <div class="custom-step">
+          <span class="num">2</span>
+          <p>A gente conversa sobre o modelo, tamanho e prazo de produção.</p>
+        </div>
+        <div class="custom-step">
+          <span class="num">3</span>
+          <p>Sua Bybi é feita à mão, exclusiva, sobre você.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="depoimentos" style="background: var(--cream-2);">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Quem já tem uma Bybi</span>
+      <h2>O que as clientes dizem</h2>
+    </div>
+    <div class="testimonials-grid" id="testimonials-grid"></div>
+  </div>
+</section>
+
+<section id="historia">
+  <div class="container about">
+    <div class="about-media reveal">
+      <img src="assets/gatos.png" alt="Bolsa de crochê Bybi em tom marrom" />
+    </div>
+    <div class="about-text reveal">
+      <span class="eyebrow">Nossa história</span>
+      <h2>A Bybi nasceu com um propósito</h2>
+      <p>Criar peças autênticas, feitas à mão, com carinho e muita personalidade. Cada bolsa carrega um pouco de quem a fez e de quem vai usar.</p>
+      <p>Por trás de cada Bybi tem tempo, escolha de cor por cor, e a ideia de que um acessório pode ser só seu — não uma peça igual à de mais ninguém.</p>
+      <a href="#personalizada" class="btn btn-outline">Conhecer o processo</a>
+    </div>
+  </div>
+</section>
+
+<section class="newsletter">
+  <div class="container newsletter-inner reveal">
+    <div>
+      <h2>Fique por dentro das novidades</h2>
+      <p>Novas cores, peças limitadas e bastidores da produção — direto no seu e-mail.</p>
+    </div>
+    <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Cadastro de demonstração — em breve isso vai direto pra sua lista de e-mails!');">
+      <input type="email" placeholder="Seu melhor e-mail" required />
+      <button class="btn btn-primary" type="submit">Quero receber</button>
+    </form>
+  </div>
+</section>
+
+<footer id="contato">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <img src="assets/logo-marktransparente.png" alt="Bybi" style="height:44px; margin-bottom:14px;" />
+        <p>Bags com muita identidade e personalidade. Feitas à mão, peça por peça.</p>
+      </div>
+      <div>
+        <h4>Loja</h4>
+        <a href="#catalogo">Catálogo</a>
+        <a href="#personalizada">Peça personalizada</a>
+        <a href="#historia">Nossa história</a>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <a href="https://www.instagram.com/bybi.co_/" target="_blank"><i class="ti ti-brand-instagram"></i> @bybi.co_</a>
+        <a href="https://ig.me/m/bybi.co_" target="_blank"><i class="ti ti-brand-whatsapp"></i> Fale pelo direct</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Bybi. Todas as peças são feitas à mão.</span>
+      <span>Desenvolvido por <a href="https://www.instagram.com/asrielp_/" target="_blank" style="color:#b8b1a4; text-decoration:underline;">@asrielp_</a> · <a href="admin.html" style="color:#8c8477; text-decoration:underline;">Área da loja</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- Cart drawer -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Seu carrinho</h3>
+    <button class="icon-btn" id="close-drawer"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="drawer-items" id="drawer-items"></div>
+  <div class="drawer-foot" id="drawer-foot"></div>
+</aside>
+
+<!-- Checkout modal -->
+<div class="modal-overlay" id="checkout-overlay">
+  <div class="modal" style="position:relative;">
+    <button class="modal-close" id="close-checkout"><i class="ti ti-x"></i></button>
+    <div class="modal-form">
+      <p class="sub">Preencha seus dados pra gente combinar a entrega e o pagamento</p>
+      <h2>Solicitar pedido</h2>
+
+      <strong style="display:block; font-size:13px; color:var(--terracotta); background:#fdeee5; padding:10px 14px; border-radius:10px; margin-bottom:18px;">Atenção, envios apenas para região do Vale do Itajaí, SC. Para outras regiões, entre em contato via direct para combinar envio e frete.</strong>
+
+      <div class="field">
+        <label>Nome completo</label>
+        <input type="text" id="checkout-name" placeholder="Seu nome" required />
+      </div>
+      <div class="field">
+        <label>WhatsApp</label>
+        <input type="text" id="checkout-phone" placeholder="(00) 00000-0000" required />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>CEP</label>
+          <input type="text" id="checkout-cep" placeholder="00000-000" required />
+        </div>
+        <div class="field">
+          <label>Cidade</label>
+          <input type="text" id="checkout-city" placeholder="Sua cidade" required />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Endereço</label>
+          <input type="text" id="checkout-address" placeholder="Rua, bairro" required />
+        </div>
+        <div class="field">
+          <label>Número</label>
+          <input type="text" id="checkout-number" placeholder="123" required />
+        </div>
+      </div>
+      <p style="font-size:12px; color:var(--ink-soft); margin:-6px 0 16px;">O endereço preenche automático ao sair do campo CEP.</p>
+
+      <label style="font-size:13px; font-weight:500; color:var(--ink-soft); display:block; margin-bottom:10px;">Forma de pagamento preferida</label>
+      <div class="pay-methods">
+        <div class="pay-method active" data-pay="Pix"><i class="ti ti-qrcode"></i> Pix</div>
+        <div class="pay-method" data-pay="Cartão"><i class="ti ti-credit-card"></i> Cartão</div>
+        <div class="pay-method" data-pay="A combinar"><i class="ti ti-message-circle"></i> A combinar</div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:16px;" id="submit-order">
+        <i class="ti ti-send"></i> Solicitar pedido
+      </button>
+      <div class="demo-note">
+        <i class="ti ti-info-circle"></i>
+        <span>Nenhum pagamento é feito aqui — seu pedido vai direto pra Gabi, que te chama no WhatsApp pra combinar a forma de pagamento.</span>
+      </div>
+    </div>
+    <div class="modal-summary">
+      <h3>Resumo do pedido</h3>
+      <div id="summary-items"></div>
+      <div class="summary-line"><span>Subtotal</span><span id="summary-subtotal">R$ 0,00</span></div>
+      <div class="summary-line"><span>Frete</span><span id="summary-shipping">R$ 18,90</span></div>
+      <div class="summary-total"><span>Total</span><span class="amt" id="summary-total">R$ 0,00</span></div>
+    </div>
+  </div>
+</div>
+
+<a href="https://w.app/vg1pfy" target="_blank" class="wa-float" aria-label="Falar no WhatsApp"><i class="ti ti-brand-whatsapp"></i></a>
+
+
+<div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-text">Adicionado ao carrinho</span></div>
+
+<script src="products.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

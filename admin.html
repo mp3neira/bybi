@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bybi — Área da loja</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<style>
+  body { background: var(--cream-2); }
+  .admin-wrap { max-width: 880px; margin: 0 auto; padding: 32px 24px 80px; }
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .admin-header img { height: 40px; }
+  .admin-card { background: white; border-radius: var(--radius); padding: 24px; margin-bottom: 20px; border: 1px solid #e4dcc9; }
+  .admin-card h2 { font-size: 18px; margin-bottom: 16px; }
+  .product-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--cream-2);
+  }
+  .product-row:last-child { border-bottom: none; }
+  .product-row img { width: 52px; height: 64px; object-fit: cover; border-radius: 8px; background: var(--cream-2); }
+  .product-row .info { flex: 1; }
+  .product-row .info .name { font-weight: 600; font-size: 14px; }
+  .product-row .info .meta { font-size: 12px; color: var(--ink-soft); }
+  .product-row .actions { display: flex; gap: 8px; }
+  .icon-action {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--cream-2); color: var(--wine); font-size: 14px;
+  }
+  .icon-action.danger { color: #c0392b; }
+  .variant-row { display: grid; grid-template-columns: 2fr 1fr 2fr auto; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .variant-row input[type="color"] { height: 40px; padding: 2px; }
+  .btn-small { padding: 8px 14px; font-size: 13px; }
+  .lock-screen {
+    position: fixed; inset: 0; background: var(--cream); z-index: 500;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  }
+  .lock-screen input { padding: 12px 16px; border-radius: 10px; border: 1.5px solid var(--cream-2); font-size: 14px; width: 260px; }
+  .order-card {
+    border: 1px solid var(--cream-2); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px;
+  }
+  .order-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .order-customer .name { font-weight: 600; font-size: 15px; }
+  .order-customer .addr { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .order-total { font-family: 'Fredoka', sans-serif; color: var(--wine); font-size: 17px; white-space: nowrap; }
+  .order-items { font-size: 13px; color: var(--ink-soft); margin-bottom: 10px; }
+  .order-items div { padding: 2px 0; }
+  .order-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .order-status {
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1.5px solid var(--cream-2);
+  }
+  .order-status option { color: var(--ink); }
+  .wa-order-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #2fae5b; color: white; padding: 8px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+  }
+  .order-empty { color: var(--ink-soft); font-size: 14px; }
+  .order-pay-tag { font-size: 11px; background: var(--cream-2); color: var(--ink-soft); padding: 3px 9px; border-radius: 999px; }
+</style>
+</head>
+<body>
+
+<div class="lock-screen" id="lock-screen">
+  <img src="assets/logo-marktransparente.png" alt="Bybi" style="height:70px;" />
+  <p style="color:var(--ink-soft); font-size:14px; max-width:280px; text-align:center;">Área restrita — só quem administra a loja deve entrar aqui.</p>
+  <input type="password" id="lock-password" placeholder="Senha" />
+  <button class="btn btn-primary" id="lock-submit">Entrar</button>
+  <p id="lock-error" style="color:#c0392b; font-size:12px; display:none;">Senha incorreta.</p>
+</div>
+
+<div class="admin-wrap" id="admin-content" style="display:none;">
+  <div class="admin-header">
+    <img src="assets/logo-marktransparente.png" alt="Bybi" />
+    <div style="display:flex; gap:8px;">
+      <a href="index.html" class="btn btn-outline btn-small"><i class="ti ti-arrow-left"></i> Voltar pra loja</a>
+      <button type="button" class="btn btn-outline btn-small" id="logout-btn"><i class="ti ti-logout"></i> Sair</button>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Pedidos recebidos</h2>
+    <div id="orders-list"></div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Categorias</h2>
+    <div id="categories-list" style="margin-bottom:14px;"></div>
+    <div class="field-row" style="align-items:flex-end;">
+      <div class="field" style="margin-bottom:0;">
+        <label>Nova categoria</label>
+        <input type="text" id="new-category" placeholder="Ex: mini bag" />
+      </div>
+      <button type="button" class="btn btn-primary btn-small" id="add-category">Adicionar</button>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Produtos cadastrados</h2>
+    <div id="products-list"></div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Depoimentos</h2>
+    <div id="testimonials-list" style="margin-bottom:14px;"></div>
+    <label style="font-size:13px; font-weight:500; color:var(--ink-soft); display:block; margin-bottom:8px;">Novo depoimento</label>
+    <div class="field" style="margin-bottom:10px;">
+      <label>Nome da cliente (opcional)</label>
+      <input type="text" id="new-testimonial-name" placeholder="Ex: Cliente Bybi" />
+    </div>
+    <div class="field" style="margin-bottom:10px;">
+      <label>Texto do depoimento</label>
+      <input type="text" id="new-testimonial-text" placeholder="Ex: Amei a bolsa, chegou rapidinho!" />
+    </div>
+    <button type="button" class="btn btn-primary btn-small" id="add-testimonial">Adicionar depoimento</button>
+  </div>
+
+  <div class="admin-card">
+    <h2 id="form-title">Adicionar novo produto</h2>
+    <form id="product-form">
+      <input type="hidden" id="edit-id" />
+      <div class="field-row">
+        <div class="field">
+          <label>Nome do produto</label>
+          <input type="text" id="p-name" required placeholder="Ex: Bolsa Star" />
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <select id="p-category" required></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Preço (R$)</label>
+          <input type="number" step="0.01" id="p-price" required placeholder="189.90" />
+        </div>
+        <div class="field">
+          <label>Selo (opcional)</label>
+          <input type="text" id="p-badge" placeholder="Ex: Feito à mão" />
+        </div>
+      </div>
+
+      <label style="font-size:13px; font-weight:500; color:var(--ink-soft); display:block; margin:16px 0 8px;">Cores / variantes</label>
+      <div id="variants-list"></div>
+      <button type="button" class="btn btn-outline btn-small" id="add-variant"><i class="ti ti-plus"></i> Adicionar cor</button>
+
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button type="submit" class="btn btn-primary" id="save-product-btn">Salvar produto</button>
+        <button type="button" class="btn btn-outline" id="cancel-edit" style="display:none;">Cancelar edição</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="admin-card">
+    <h2>Restaurar padrão</h2>
+    <p style="font-size:13px; color:var(--ink-soft); margin-bottom:12px;">Isso apaga suas edições e volta para os produtos originais do site.</p>
+    <button class="btn btn-outline btn-small" id="reset-products"><i class="ti ti-refresh"></i> Restaurar produtos padrão</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toast-text">Salvo</span></div>
+
+<script src="products.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
