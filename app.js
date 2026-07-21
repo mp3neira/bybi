@@ -517,6 +517,36 @@ function setupAnnounceRotator() {
   }, 3800);
 }
 
+// ---------- Newsletter ----------
+const newsletterForm = document.getElementById('newsletter-form');
+if (newsletterForm) {
+  newsletterForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('newsletter-email');
+    const email = emailInput.value.trim();
+    if (!email) return;
+
+    const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    const { error } = await sb.from('newsletter_subscribers').insert({ email });
+
+    submitBtn.disabled = false;
+
+    if (error) {
+      if (error.code === '23505') {
+        showToast('Esse e-mail já está cadastrado!');
+      } else {
+        console.error(error);
+        showToast('Erro ao cadastrar — tenta de novo.');
+      }
+      return;
+    }
+    emailInput.value = '';
+    showToast('Cadastrado! Você vai receber as novidades da Bybi.');
+  });
+}
+
 // ---------- Init ----------
 async function init() {
   await fetchCatalog();

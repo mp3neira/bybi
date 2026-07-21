@@ -54,11 +54,12 @@ let categories = [];     // [{id, name}]
 let variantCount = 0;
 
 async function init() {
-  await Promise.all([loadCategories(), loadProducts(), loadTestimonials()]);
+  await Promise.all([loadCategories(), loadProducts(), loadTestimonials(), loadNewsletter()]);
   renderCategorySelect();
   renderCategoriesList();
   renderList();
   renderTestimonialsList();
+  renderNewsletterList();
   resetForm();
   await renderOrders();
 }
@@ -511,6 +512,46 @@ document.getElementById('add-testimonial') && document.getElementById('add-testi
   renderTestimonialsList();
   showToast('Depoimento adicionado.');
 });
+
+// ---------- Newsletter ----------
+let newsletterSubs = [];
+
+async function loadNewsletter() {
+  const { data, error } = await sb.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); newsletterSubs = []; return; }
+  newsletterSubs = data;
+}
+
+function renderNewsletterList() {
+  const el = document.getElementById('newsletter-list');
+  if (!el) return;
+  if (newsletterSubs.length === 0) {
+    el.innerHTML = '<p style="color:var(--ink-soft); font-size:13px;">Ninguém se cadastrou ainda.</p>';
+    return;
+  }
+  el.innerHTML = newsletterSubs.map(s => `
+    <div class="product-row">
+      <div class="info">
+        <div class="name">${s.email}</div>
+        <div class="meta">${new Date(s.created_at).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div class="actions">
+        <button class="icon-action danger" data-delete-sub="${s.id}" aria-label="Excluir inscrito"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+
+  el.querySelectorAll('[data-delete-sub]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Remover esse e-mail da lista?')) return;
+      const { error } = await sb.from('newsletter_subscribers').delete().eq('id', btn.dataset.deleteSub);
+      if (error) { showToast('Erro ao remover.'); console.error(error); return; }
+      await loadNewsletter();
+      renderNewsletterList();
+      showToast('E-mail removido.');
+    });
+  });
+}
 
 // ---------- Toast ----------
 function showToast(text) {

@@ -100,6 +100,15 @@ create table testimonials (
 );
 
 -- ------------------------------------------------------------
+-- 7. Newsletter (e-mails cadastrados no rodapé do site)
+-- ------------------------------------------------------------
+create table newsletter_subscribers (
+  id          uuid primary key default gen_random_uuid(),
+  email       text not null unique,
+  created_at  timestamptz not null default now()
+);
+
+-- ------------------------------------------------------------
 -- Índices úteis
 -- ------------------------------------------------------------
 create index idx_products_category on products(category_id);
@@ -123,6 +132,7 @@ alter table product_images enable row level security;
 alter table orders enable row level security;
 alter table order_items enable row level security;
 alter table testimonials enable row level security;
+alter table newsletter_subscribers enable row level security;
 
 -- Leitura pública do catálogo (qualquer visitante do site pode ver produtos)
 create policy "catálogo é público para leitura" on categories for select using (true);
@@ -134,6 +144,9 @@ create policy "depoimentos aprovados são públicos" on testimonials for select 
 -- Qualquer visitante pode CRIAR um pedido (mas não ler os pedidos dos outros)
 create policy "qualquer um pode criar pedido" on orders for insert with check (true);
 create policy "qualquer um pode adicionar itens ao criar pedido" on order_items for insert with check (true);
+
+-- Qualquer visitante pode se cadastrar na newsletter (mas não ler os e-mails dos outros)
+create policy "qualquer um pode se cadastrar na newsletter" on newsletter_subscribers for insert with check (true);
 
 -- ------------------------------------------------------------
 -- Escrita do painel admin (categorias, produtos, variantes, depoimentos e pedidos)
@@ -155,6 +168,11 @@ create policy "admin autenticado gerencia fotos" on product_images
 
 create policy "admin autenticado gerencia depoimentos" on testimonials
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+create policy "admin autenticado le newsletter" on newsletter_subscribers
+  for select using (auth.role() = 'authenticated');
+create policy "admin autenticado exclui newsletter" on newsletter_subscribers
+  for delete using (auth.role() = 'authenticated');
 
 -- Pedidos: o formulário público só cria (policy acima); ler, atualizar status
 -- e excluir fica restrito a quem está logado no painel.
