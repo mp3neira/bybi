@@ -43,6 +43,17 @@ create table product_variants (
 );
 
 -- ------------------------------------------------------------
+-- 3b. Fotos extras de cada variante (até 10 por cor)
+-- ------------------------------------------------------------
+create table product_images (
+  id          uuid primary key default gen_random_uuid(),
+  variant_id  uuid not null references product_variants(id) on delete cascade,
+  image_url   text not null,
+  sort_order  int not null default 0,
+  created_at  timestamptz not null default now()
+);
+
+-- ------------------------------------------------------------
 -- 4. Pedidos
 -- ------------------------------------------------------------
 create type order_status as enum ('novo', 'combinando', 'pago', 'enviado', 'cancelado');
@@ -93,6 +104,7 @@ create table testimonials (
 -- ------------------------------------------------------------
 create index idx_products_category on products(category_id);
 create index idx_variants_product on product_variants(product_id);
+create index idx_images_variant on product_images(variant_id);
 create index idx_order_items_order on order_items(order_id);
 create index idx_orders_status on orders(status);
 
@@ -107,6 +119,7 @@ create index idx_orders_status on orders(status);
 alter table categories enable row level security;
 alter table products enable row level security;
 alter table product_variants enable row level security;
+alter table product_images enable row level security;
 alter table orders enable row level security;
 alter table order_items enable row level security;
 alter table testimonials enable row level security;
@@ -115,6 +128,7 @@ alter table testimonials enable row level security;
 create policy "catálogo é público para leitura" on categories for select using (true);
 create policy "catálogo é público para leitura" on products for select using (true);
 create policy "catálogo é público para leitura" on product_variants for select using (true);
+create policy "catálogo é público para leitura" on product_images for select using (true);
 create policy "depoimentos aprovados são públicos" on testimonials for select using (approved = true);
 
 -- Qualquer visitante pode CRIAR um pedido (mas não ler os pedidos dos outros)
@@ -134,6 +148,9 @@ create policy "admin autenticado gerencia produtos" on products
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 create policy "admin autenticado gerencia variantes" on product_variants
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+create policy "admin autenticado gerencia fotos" on product_images
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 create policy "admin autenticado gerencia depoimentos" on testimonials

@@ -5,6 +5,48 @@ let cart = JSON.parse(localStorage.getItem('bybi-cart') || '[]');
 let currentFilter = 'todas';
 let selectedPayment = 'Pix';
 const selectedVariant = {}; // productId -> variant index escolhido no card
+const selectedImage = {}; // productId -> índice da foto atual dentro da variante
+
+function generateUUID() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  // Fallback pra quando o navegador não expõe crypto.randomUUID
+  // (acontece fora de https/localhost, ex: acessando por IP da rede local)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function getVariantImages(variant) {
+  return (variant.images && variant.images.length) ? variant.images : [variant.img];
+}
+
+function updateCardMedia(card, product) {
+  const vIndex = selectedVariant[product.id] || 0;
+  const images = getVariantImages(product.variants[vIndex]);
+  let imgIndex = selectedImage[product.id] || 0;
+  if (imgIndex >= images.length) imgIndex = 0;
+  selectedImage[product.id] = imgIndex;
+
+  card.querySelector('[data-role="main-img"]').src = images[imgIndex];
+
+  const showNav = images.length > 1;
+  card.querySelectorAll('.img-nav').forEach(btn => btn.classList.toggle('hidden', !showNav));
+
+  const dotsWrap = card.querySelector('[data-role="img-dots"]');
+  dotsWrap.classList.toggle('hidden', !showNav);
+  dotsWrap.innerHTML = images.map((_, i) => `<span class="img-dot ${i === imgIndex ? 'active' : ''}" data-dot="${i}"></span>`).join('');
+  dotsWrap.querySelectorAll('.img-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectedImage[product.id] = parseInt(dot.dataset.dot, 10);
+      updateCardMedia(card, product);
+    });
+  });
+}
 
 function saveCart() {
   localStorage.setItem('bybi-cart', JSON.stringify(cart));
@@ -29,7 +71,7 @@ async function fetchCatalog() {
 
     const { data: prodData, error: prodError } = await sb
       .from('products')
-      .select('id, name, price, badge, category_id, categories(name), product_variants(id, color_name, hex_color, image_url, sort_order)')
+      .select('id, name, price, badge, category_id, categories(name), product_variants(id, color_name, hex_color, image_url, sort_order, product_images(id, image_url, sort_order))')
       .order('created_at');
     if (prodError) throw prodError;
 
@@ -41,7 +83,12 @@ async function fetchCatalog() {
       category: p.categories ? p.categories.name : '',
       variants: (p.product_variants || [])
         .sort((a, b) => a.sort_order - b.sort_order)
-        .map(v => ({ color: v.color_name, hex: v.hex_color, img: v.image_url })),
+        .map(v => ({
+          color: v.color_name,
+          hex: v.hex_color,
+          img: v.image_url,
+          images: (v.product_images || []).sort((a, b) => a.sort_order - b.sort_order).map(im => im.image_url),
+        })),
     })).filter(p => p.variants.length > 0);
   } catch (e) {
     console.error('Não consegui buscar do Supabase, usando dados padrão:', e);
@@ -73,12 +120,20 @@ function renderProducts() {
   grid.innerHTML = list.map((p, idx) => {
     const vIndex = selectedVariant[p.id] || 0;
     const variant = p.variants[vIndex];
+    const images = getVariantImages(variant);
+    let imgIndex = selectedImage[p.id] || 0;
+    if (imgIndex >= images.length) imgIndex = 0;
     return `
     <div class="card reveal" style="transition-delay:${idx * 0.08}s" data-product="${p.id}">
       <div class="card-media">
         ${p.badge ? `<span class="card-badge">${p.badge}</span>` : ''}
         <button class="card-fav" aria-label="Favoritar"><i class="ti ti-heart"></i></button>
-        <img src="${variant.img}" alt="${p.name} - ${variant.color}" data-role="main-img" />
+        <img src="${images[imgIndex]}" alt="${p.name} - ${variant.color}" data-role="main-img" />
+        <button class="img-nav prev ${images.length > 1 ? '' : 'hidden'}" data-img-nav="prev" aria-label="Foto anterior"><i class="ti ti-chevron-left"></i></button>
+        <button class="img-nav next ${images.length > 1 ? '' : 'hidden'}" data-img-nav="next" aria-label="Próxima foto"><i class="ti ti-chevron-right"></i></button>
+        <div class="img-dots ${images.length > 1 ? '' : 'hidden'}" data-role="img-dots">
+          ${images.map((_, i) => `<span class="img-dot ${i === imgIndex ? 'active' : ''}" data-dot="${i}"></span>`).join('')}
+        </div>
       </div>
       <div class="card-body">
         <span class="cat">${p.category}</span>
@@ -111,11 +166,39 @@ function renderProducts() {
       const productId = card.dataset.product;
       const idx = parseInt(btn.dataset.swatch, 10);
       selectedVariant[productId] = idx;
+      selectedImage[productId] = 0;
       const product = PRODUCTS.find(p => p.id === productId);
       const variant = product.variants[idx];
-      card.querySelector('[data-role="main-img"]').src = variant.img;
       card.querySelector('[data-role="variant-label"]').textContent = variant.color;
       card.querySelectorAll('.swatch').forEach((s, i) => s.classList.toggle('active', i === idx));
+      updateCardMedia(card, product);
+    });
+  });
+
+  grid.querySelectorAll('[data-img-nav]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = btn.closest('.card');
+      const productId = card.dataset.product;
+      const product = PRODUCTS.find(p => p.id === productId);
+      const vIndex = selectedVariant[productId] || 0;
+      const images = getVariantImages(product.variants[vIndex]);
+      if (images.length <= 1) return;
+      let imgIndex = selectedImage[productId] || 0;
+      imgIndex = btn.dataset.imgNav === 'next' ? (imgIndex + 1) % images.length : (imgIndex - 1 + images.length) % images.length;
+      selectedImage[productId] = imgIndex;
+      updateCardMedia(card, product);
+    });
+  });
+
+  grid.querySelectorAll('.img-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = dot.closest('.card');
+      const productId = card.dataset.product;
+      const product = PRODUCTS.find(p => p.id === productId);
+      selectedImage[productId] = parseInt(dot.dataset.dot, 10);
+      updateCardMedia(card, product);
     });
   });
 }
@@ -336,7 +419,7 @@ document.getElementById('submit-order').addEventListener('click', async () => {
   submitBtn.textContent = 'Enviando...';
 
   try {
-    const orderId = crypto.randomUUID();
+    const orderId = generateUUID();
     const { error: orderError } = await sb.from('orders').insert({
       id: orderId,
       customer_name: document.getElementById('checkout-name').value.trim(),
