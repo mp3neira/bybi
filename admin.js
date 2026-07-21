@@ -2,6 +2,9 @@
 // A senha não fica mais escrita aqui no código: quem confere se está certa
 // é o próprio Supabase, do lado do servidor.
 document.getElementById('lock-submit').addEventListener('click', unlock);
+document.getElementById('lock-email').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') unlock();
+});
 document.getElementById('lock-password').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') unlock();
 });
@@ -9,12 +12,13 @@ document.getElementById('lock-password').addEventListener('keydown', (e) => {
 async function unlock() {
   const btn = document.getElementById('lock-submit');
   const errEl = document.getElementById('lock-error');
+  const email = document.getElementById('lock-email').value.trim();
   const val = document.getElementById('lock-password').value;
   errEl.style.display = 'none';
   btn.disabled = true;
   btn.textContent = 'Entrando...';
 
-  const { error } = await sb.auth.signInWithPassword({ email: ADMIN_EMAIL, password: val });
+  const { error } = await sb.auth.signInWithPassword({ email, password: val });
 
   btn.disabled = false;
   btn.textContent = 'Entrar';

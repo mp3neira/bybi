@@ -68,7 +68,8 @@
 <div class="lock-screen" id="lock-screen">
   <img src="assets/logo-marktransparente.png" alt="Bybi" style="height:70px;" />
   <p style="color:var(--ink-soft); font-size:14px; max-width:280px; text-align:center;">Área restrita — só quem administra a loja deve entrar aqui.</p>
-  <input type="password" id="lock-password" placeholder="Senha" />
+  <input type="email" id="lock-email" placeholder="E-mail" autocomplete="username" />
+  <input type="password" id="lock-password" placeholder="Senha" autocomplete="current-password" />
   <button class="btn btn-primary" id="lock-submit">Entrar</button>
   <p id="lock-error" style="color:#c0392b; font-size:12px; display:none;">Senha incorreta.</p>
 </div>
