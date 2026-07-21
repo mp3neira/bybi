@@ -6,6 +6,11 @@ let currentFilter = 'todas';
 let selectedPayment = 'Pix';
 const selectedVariant = {}; // productId -> variant index escolhido no card
 const selectedImage = {}; // productId -> índice da foto atual dentro da variante
+let favorites = JSON.parse(localStorage.getItem('bybi-favorites') || '[]');
+
+function saveFavorites() {
+  localStorage.setItem('bybi-favorites', JSON.stringify(favorites));
+}
 
 function generateUUID() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -127,7 +132,7 @@ function renderProducts() {
     <div class="card reveal" style="transition-delay:${idx * 0.08}s" data-product="${p.id}">
       <div class="card-media">
         ${p.badge ? `<span class="card-badge">${p.badge}</span>` : ''}
-        <button class="card-fav" aria-label="Favoritar"><i class="ti ti-heart"></i></button>
+        <button class="card-fav ${favorites.includes(p.id) ? 'is-active' : ''}" data-fav="${p.id}" aria-label="Favoritar"><i class="ti ${favorites.includes(p.id) ? 'ti-heart-filled' : 'ti-heart'}"></i></button>
         <img src="${images[imgIndex]}" alt="${p.name} - ${variant.color}" data-role="main-img" />
         <button class="img-nav prev ${images.length > 1 ? '' : 'hidden'}" data-img-nav="prev" aria-label="Foto anterior"><i class="ti ti-chevron-left"></i></button>
         <button class="img-nav next ${images.length > 1 ? '' : 'hidden'}" data-img-nav="next" aria-label="Próxima foto"><i class="ti ti-chevron-right"></i></button>
@@ -199,6 +204,26 @@ function renderProducts() {
       const product = PRODUCTS.find(p => p.id === productId);
       selectedImage[productId] = parseInt(dot.dataset.dot, 10);
       updateCardMedia(card, product);
+    });
+  });
+
+  grid.querySelectorAll('[data-fav]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const productId = btn.dataset.fav;
+      const icon = btn.querySelector('i');
+      if (favorites.includes(productId)) {
+        favorites = favorites.filter(id => id !== productId);
+        btn.classList.remove('is-active');
+        icon.classList.remove('ti-heart-filled');
+        icon.classList.add('ti-heart');
+      } else {
+        favorites.push(productId);
+        btn.classList.add('is-active');
+        icon.classList.remove('ti-heart');
+        icon.classList.add('ti-heart-filled');
+      }
+      saveFavorites();
     });
   });
 }
