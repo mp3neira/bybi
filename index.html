@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bybi — bags com identidade e personalidade</title>
+<title>Bybi - bags com identidade e personalidade</title>
 <link rel="stylesheet" href="styles.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.44.0/tabler-icons.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,7 +11,13 @@
 </head>
 <body>
 
-<div class="announce"><i class="ti ti-truck"></i>Frete grátis para Brusque, SC · Peças feitas à mão sob encomenda</div>
+<div class="announce">
+  <div class="announce-rotator" id="announce-rotator">
+    <span class="announce-msg is-active"><i class="ti ti-truck"></i>Frete grátis para Brusque, SC</span>
+    <span class="announce-msg"><i class="ti ti-hand-stop"></i>Peças feitas à mão sob encomenda</span>
+    <span class="announce-msg"><i class="ti ti-map-pin"></i>Envios para o Vale do Itajaí, SC</span>
+  </div>
+</div>
 
 <header>
   <div class="header-inner">

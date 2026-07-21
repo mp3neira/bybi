@@ -87,6 +87,23 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.02em;
 }
 .announce i { color: var(--sage); vertical-align: -2px; margin-right: 6px; }
+.announce-rotator {
+  position: relative;
+  height: 18px;
+}
+.announce-msg {
+  position: absolute;
+  left: 0; right: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+.announce-msg.is-active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
 
 /* ---------- WhatsApp float ---------- */
 @keyframes waPulse {

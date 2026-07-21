@@ -422,6 +422,18 @@ function setupRevealObserver() {
   document.querySelectorAll('.reveal:not(.in-view)').forEach(el => observer.observe(el));
 }
 
+// ---------- Barra de aviso (frete/informações) alternando mensagens ----------
+function setupAnnounceRotator() {
+  const msgs = document.querySelectorAll('#announce-rotator .announce-msg');
+  if (msgs.length < 2) return;
+  let current = 0;
+  setInterval(() => {
+    msgs[current].classList.remove('is-active');
+    current = (current + 1) % msgs.length;
+    msgs[current].classList.add('is-active');
+  }, 3800);
+}
+
 // ---------- Init ----------
 async function init() {
   await fetchCatalog();
@@ -430,5 +442,6 @@ async function init() {
   renderCart();
   await renderTestimonials();
   setupRevealObserver();
+  setupAnnounceRotator();
 }
 init();
